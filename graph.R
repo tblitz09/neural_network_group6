@@ -52,6 +52,9 @@ new_scaled <- scale_like(new_cases, mydata)
 predict(fit, new_scaled)
 
 # Group 6 specific code
+llama <- read_csv("nn_group6_llama_stocks.csv")
+tomorrow <- tibble(hay_price = 6.5, llama_posts = 260, spit_incidents = 4,
+                   fog_level = 0.4, head_llama_mood = 3)
 scaled <- llama %>% mutate(across(-price_up, normalize))
 set.seed(301)                                   # this seed fixes the SPLIT
 rows  <- sample(nrow(scaled), 120)
@@ -65,7 +68,7 @@ runs <- map_dfr(1:10, \(s) {
   tibble(seed      = s,
          train_err = fit$result.matrix["error", 1],
          test_acc  = mean((predict(fit, test)[, 1] > 0.5) == test$price_up),
-         tomorrow  = ___)                       # P(price goes up tomorrow)
+         tomorrow  = predict(fit, tomorrow_scaled)[1, 1])                       # P(price goes up tomorrow)
 })
 runs
 ggplot(runs, aes(seed, test_acc)) + geom_col()
