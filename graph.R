@@ -21,7 +21,14 @@ normalize <- function(x) {
   (x - min(x, na.rm = TRUE)) / (max(x, na.rm = TRUE) - min(x, na.rm = TRUE))
 }
 scaled <- mydata %>% mutate(across(-price_up, normalize))
-
+scale_like <- function(new_data, reference_data) {
+  new_data %>%
+    mutate(across(everything(), ~ {
+      col_name <- cur_column()
+      ref_col <- reference_data[[col_name]]
+      (.x - min(ref_col)) / (max(ref_col) - min(ref_col))
+    }))
+}
 # Step 3: an honest split - 75% of the rows for training
 set.seed(301)
 train_rows <- sample(nrow(scaled), round(0.75 * nrow(scaled)))
