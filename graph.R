@@ -26,7 +26,10 @@ scale_like <- function(new_data, reference_data) {
     mutate(across(everything(), ~ {
       col_name <- cur_column()
       ref_col <- reference_data[[col_name]]
-      (.x - min(ref_col)) / (max(ref_col) - min(ref_col))
+      
+      ( .x - min(ref_col, na.rm = TRUE)) /
+        (max(ref_col, na.rm = TRUE) -
+           min(ref_col, na.rm = TRUE))
     }))
 }
 # Step 3: an honest split - 75% of the rows for training
@@ -55,6 +58,13 @@ train_pred <- ifelse(predict(fit, train)[, 1] > 0.5, 1, 0)
 mean(train_pred == train$price_up)
 
 # Predict for new cases: scale them like the ORIGINAL data first!
+new_cases <- tibble(
+  hay_price = c(6.5, 7.2, 5.8, 8.0, 6.0),
+  llama_posts = c(260, 400, 100, 550, 180),
+  spit_incidents = c(4, 1, 8, 2, 6),
+  fog_level = c(0.4, 0.1, 0.9, 0.2, 0.7),
+  head_llama_mood = c(3, 5, 1, 4, 2)
+)
 new_scaled <- scale_like(new_cases, mydata)
 predict(fit, new_scaled)
 
